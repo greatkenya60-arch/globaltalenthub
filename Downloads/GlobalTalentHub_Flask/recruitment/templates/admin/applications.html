@@ -1,0 +1,142 @@
+{% extends "admin/base.html" %}
+{% block title %}Applications{% endblock %}
+{% block page_title %}Job Applications{% endblock %}
+
+{% block page_content %}
+
+<!-- Filters -->
+<div style="display:flex; gap:12px; margin-bottom:22px; flex-wrap:wrap;">
+  <form method="GET" action="{{ url_for('admin_applications') }}" style="display:flex; gap:12px; flex-wrap:wrap; flex:1;">
+    <input class="form-control" type="text" name="search" value="{{ search }}"
+           placeholder="Search name, email or job…" style="max-width:280px;">
+    <select class="form-control" name="status" style="max-width:180px;">
+      <option value="">All Statuses</option>
+      {% for s in APP_STATUSES %}
+      <option value="{{ s }}" {{ 'selected' if status_filter == s }}>{{ s|capitalize }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+    <a href="{{ url_for('admin_applications') }}" class="btn btn-ghost btn-sm">Clear</a>
+  </form>
+  <div style="color:var(--muted); font-size:14px; align-self:center;">
+    {{ apps|length }} result{{ 's' if apps|length != 1 }}
+  </div>
+</div>
+
+<!-- Status quick-filter tabs -->
+<div style="display:flex; gap:8px; margin-bottom:22px; flex-wrap:wrap;">
+  <a href="{{ url_for('admin_applications') }}"
+     style="padding:7px 16px; border-radius:100px; font-size:13px; font-weight:600; text-decoration:none;
+            background:{{ '#0f2444' if not status_filter else '#f1f5f9' }};
+            color:{{ '#fff' if not status_filter else '#64748b' }};">
+    All
+  </a>
+  {% for s in APP_STATUSES %}
+  <a href="{{ url_for('admin_applications', status=s) }}"
+     style="padding:7px 16px; border-radius:100px; font-size:13px; font-weight:600; text-decoration:none;
+            background:{{ STATUS_COLORS[s]+'22' if status_filter == s else '#f1f5f9' }};
+            color:{{ STATUS_COLORS[s] if status_filter == s else '#64748b' }};">
+    {{ s|capitalize }}
+  </a>
+  {% endfor %}
+</div>
+
+{% if apps %}
+
+{% for app in apps %}
+<div class="card" style="margin-bottom:16px; padding:22px 24px;">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; gap:16px; flex-wrap:wrap;">
+    <div>
+      <div style="font-size:17px; font-weight:800; color:var(--navy); margin-bottom:4px;">{{ app.full_name }}</div>
+      <div style="font-size:13px; color:var(--muted);">
+        Applied for: <strong style="color:var(--slate);">{{ app.job_title }}</strong>
+        {% if app.company %}at <strong style="color:var(--slate);">{{ app.company }}</strong>{% endif %}
+        · {{ app.country }}
+      </div>
+      <div style="font-size:12px; color:var(--muted); margin-top:3px;">
+        📅 {{ app.applied_at[:16] if app.applied_at else '—' }}
+        &nbsp;·&nbsp; App #{{ app.id }}
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-shrink:0;">
+      <!-- Status Change -->
+      <form method="POST" action="{{ url_for('admin_update_status') }}" style="display:flex; gap:8px; align-items:center;">
+        <input type="hidden" name="app_id" value="{{ app.id }}">
+        <input type="hidden" name="status_filter" value="{{ status_filter }}">
+        <input type="hidden" name="search_val" value="{{ search }}">
+        <select name="status" class="form-control"
+                style="max-width:155px; font-weight:700; font-size:13px;
+                       background:{{ STATUS_COLORS[app.status]+'18' }};
+                       color:{{ STATUS_COLORS[app.status] }};
+                       border:1.5px solid {{ STATUS_COLORS[app.status]+'44' }};">
+          {% for s in APP_STATUSES %}
+          <option value="{{ s }}" {{ 'selected' if app.status == s }}>{{ s|capitalize }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-sm btn-info">Update</button>
+      </form>
+      <!-- Delete -->
+      <form method="POST" action="{{ url_for('admin_delete_app', app_id=app.id) }}" onsubmit="return confirm('Delete this application permanently?');">
+        <button type="submit" class="btn btn-sm btn-danger">🗑</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Details Grid -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; background:#f8fafc; border-radius:12px; padding:16px; margin-bottom:14px;">
+    {% for label, value in [
+      ('📧 Email',    app.email),
+      ('📱 Phone',    app.phone),
+      ('🌐 Nationality', app.nationality),
+      ('📍 Location', app.current_location),
+      ('🎂 Date of Birth', app.dob),
+      ('🎓 Education', app.education),
+    ] %}
+    {% if value %}
+    <div>
+      <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.8px;">{{ label }}</div>
+      <div style="font-size:13px; color:var(--slate); margin-top:2px; word-break:break-all;">{{ value }}</div>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% if app.linkedin %}
+    <div>
+      <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.8px;">🔗 LinkedIn</div>
+      <a href="{{ app.linkedin }}" target="_blank" style="font-size:13px; color:#2563eb; word-break:break-all;">{{ app.linkedin }}</a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if app.experience %}
+  <div style="background:#f0f9ff; border-radius:10px; padding:14px 16px; margin-bottom:12px;">
+    <div style="font-size:11px; color:#0369a1; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">💼 Experience</div>
+    <div style="font-size:13px; color:var(--slate); line-height:1.65;">{{ app.experience }}</div>
+  </div>
+  {% endif %}
+
+  {% if app.cover_letter %}
+  <div style="background:#fffbeb; border-left:3px solid #f59e0b; border-radius:0 10px 10px 0; padding:14px 16px;">
+    <div style="font-size:11px; color:#92400e; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">✉️ Cover Letter</div>
+    <div style="font-size:13px; color:var(--slate); line-height:1.7; white-space:pre-line;">{{ app.cover_letter }}</div>
+  </div>
+  {% endif %}
+
+</div>
+{% endfor %}
+
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <div class="icon">📭</div>
+    <h3>No applications found</h3>
+    <p>{% if status_filter or search %}Try adjusting your filters.{% else %}Applications will appear here when candidates apply.{% endif %}</p>
+    {% if status_filter or search %}
+    <a href="{{ url_for('admin_applications') }}" class="btn btn-primary" style="margin-top:20px;">Clear Filters</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

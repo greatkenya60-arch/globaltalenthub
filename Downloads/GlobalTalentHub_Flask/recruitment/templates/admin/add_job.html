@@ -1,0 +1,139 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit Job' if edit_mode else 'Post New Job' }}{% endblock %}
+{% block page_title %}{{ 'Edit Job Listing' if edit_mode else 'Post New Job' }}{% endblock %}
+
+{% block page_content %}
+<div style="max-width:840px;">
+  <div class="card">
+    <form method="POST" action="{{ url_for('admin_edit_job', job_id=job_id) if edit_mode else url_for('admin_add_job') }}">
+
+      <!-- Basic Info -->
+      <h3 style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid #f1f5f9;">
+        📋 Basic Information
+      </h3>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Job Title <span style="color:#dc2626;">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('title') }}" type="text"
+                 name="title" value="{{ form_data.title }}" placeholder="e.g. Senior Registered Nurse">
+          {% if errors.get('title') %}<div class="form-error">{{ errors.title }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Name <span style="color:#dc2626;">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('company') }}" type="text"
+                 name="company" value="{{ form_data.company }}" placeholder="e.g. Melbourne Health Network">
+          {% if errors.get('company') %}<div class="form-error">{{ errors.company }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location <span style="color:#dc2626;">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('location') }}" type="text"
+                 name="location" value="{{ form_data.location }}" placeholder="e.g. Melbourne, Victoria">
+          {% if errors.get('location') %}<div class="form-error">{{ errors.location }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <select class="form-control" name="country">
+            {% for c in COUNTRIES %}
+            <option {{ 'selected' if form_data.country == c }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sector</label>
+          <select class="form-control" name="sector">
+            {% for s in SECTORS %}
+            <option {{ 'selected' if form_data.sector == s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Job Type</label>
+          <select class="form-control" name="job_type">
+            {% for t in JOB_TYPES %}
+            <option {{ 'selected' if form_data.job_type == t }}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Salary Range</label>
+          <input class="form-control" type="text" name="salary"
+                 value="{{ form_data.salary }}" placeholder="e.g. AUD 90,000–110,000/yr">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Experience Required</label>
+          <select class="form-control" name="experience">
+            {% for e in EXP_LEVELS %}
+            <option {{ 'selected' if form_data.experience == e }}>{{ e }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Application Deadline</label>
+          <input class="form-control" type="date" name="deadline" value="{{ form_data.deadline }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Available Positions</label>
+          <input class="form-control" type="number" name="slots"
+                 value="{{ form_data.slots }}" min="1" max="999">
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div style="height:12px;"></div>
+      <h3 style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid #f1f5f9;">
+        📝 Job Content
+      </h3>
+
+      <div class="form-group">
+        <label class="form-label">Job Description</label>
+        <textarea class="form-control" name="description" rows="6"
+                  placeholder="Describe the role, responsibilities, team culture and what makes this opportunity special…">{{ form_data.description }}</textarea>
+      </div>
+
+      <div class="form-grid-2" style="margin-top:4px;">
+        <div class="form-group">
+          <label class="form-label">Requirements</label>
+          <textarea class="form-control" name="requirements" rows="6"
+                    placeholder="One requirement per line:&#10;Bachelor's degree&#10;3+ years experience&#10;Valid passport">{{ form_data.requirements }}</textarea>
+          <div class="form-hint">Enter one requirement per line</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Benefits &amp; Perks</label>
+          <textarea class="form-control" name="benefits" rows="6"
+                    placeholder="One benefit per line:&#10;Visa sponsorship&#10;Relocation support&#10;Health insurance">{{ form_data.benefits }}</textarea>
+          <div class="form-hint">Enter one benefit per line</div>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div style="height:8px;"></div>
+      <h3 style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid #f1f5f9;">
+        ⚙️ Options
+      </h3>
+
+      <div style="display:flex; gap:28px; margin-bottom:24px;">
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; font-weight:500;">
+          <input type="checkbox" name="active" {{ 'checked' if form_data.active }}
+                 style="width:17px; height:17px; cursor:pointer; accent-color:var(--navy);">
+          Active (visible to job seekers)
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; font-weight:500;">
+          <input type="checkbox" name="urgent" {{ 'checked' if form_data.urgent }}
+                 style="width:17px; height:17px; cursor:pointer; accent-color:#d97706;">
+          🔥 Mark as Urgent
+        </label>
+      </div>
+
+      <!-- Buttons -->
+      <div style="display:flex; gap:14px; padding-top:8px;">
+        <button type="submit" class="btn btn-primary" style="padding:12px 28px; font-size:15px;">
+          {{ '✏️ Update Job' if edit_mode else '🚀 Post Job' }}
+        </button>
+        <a href="{{ url_for('admin_jobs') }}" class="btn btn-ghost" style="padding:12px 22px;">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

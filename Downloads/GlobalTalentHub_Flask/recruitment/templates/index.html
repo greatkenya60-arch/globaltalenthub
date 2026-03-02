@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+.hero {
+  background: linear-gradient(135deg, #0f2444 0%, #152d57 55%, #1a3a6e 100%);
+  padding: 92px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 20% 40%, rgba(212,168,67,0.1) 0%, transparent 55%),
+              radial-gradient(circle at 80% 80%, rgba(26,58,110,0.5) 0%, transparent 50%);
+}
+.hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index:1; }
+.hero-content { max-width: 700px; margin: 0 auto; text-align: center; animation: slideUp 0.7s ease; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3);
+  color: #d4a843; padding: 7px 18px; border-radius: 100px;
+  font-size: 13px; font-weight: 700; margin-bottom: 24px; letter-spacing: 0.5px;
+}
+.hero h1 { font-size: clamp(2.4rem,5vw,3.8rem); font-weight: 900; color: #fff; margin-bottom: 20px; letter-spacing: -1.5px; line-height: 1.1; }
+.hero h1 span { color: #d4a843; }
+.hero-desc { font-size: 17px; color: rgba(255,255,255,0.72); margin-bottom: 40px; line-height: 1.75; }
+.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.hero-stats {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0; max-width: 860px; margin: 58px auto 0;
+  border-top: 1px solid rgba(255,255,255,0.1); padding-top: 50px;
+}
+.stat-item { text-align: center; padding: 0 20px; border-right: 1px solid rgba(255,255,255,0.1); }
+.stat-item:last-child { border-right: none; }
+.stat-emoji { font-size: 26px; }
+.stat-value { font-size: 32px; font-weight: 900; color: #d4a843; margin: 8px 0 4px; display: block; }
+.stat-label { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+.search-bar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 22px 24px; box-shadow: 0 6px 24px rgba(0,0,0,0.07); }
+.search-inner { max-width: 1000px; margin: 0 auto; display: flex; gap: 12px; flex-wrap: wrap; }
+.search-field { flex: 2; min-width: 200px; position: relative; }
+.search-field input { padding-left: 42px; }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px; }
+.search-select { flex: 1; min-width: 160px; }
+
+.job-card {
+  background: #fff; border: 1.5px solid #e2e8f0; border-radius: 16px;
+  padding: 24px; display: flex; flex-direction: column; gap: 14px;
+  transition: all 0.22s;
+}
+.job-card:hover { border-color: #d4a843; box-shadow: 0 10px 32px rgba(0,0,0,0.1); transform: translateY(-3px); }
+.job-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.job-title { font-size: 16px; font-weight: 800; color: #0f2444; line-height: 1.3; margin-bottom: 4px; }
+.job-company { font-size: 13px; font-weight: 600; color: #334155; }
+.job-flag { font-size: 26px; flex-shrink: 0; }
+.job-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.job-salary { font-size: 16px; font-weight: 800; color: #059669; }
+.job-card-actions { display: flex; gap: 10px; margin-top: 4px; }
+.job-card-actions .btn { flex: 1; justify-content: center; }
+
+.sector-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px,1fr)); gap: 14px; }
+.sector-card {
+  background: #fff; border: 1.5px solid #e2e8f0; border-radius: 14px;
+  padding: 22px 12px; text-align: center; cursor: pointer; transition: all 0.22s;
+  text-decoration: none; display: block;
+}
+.sector-card:hover { border-color: #d4a843; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.sector-emoji { font-size: 34px; margin-bottom: 10px; display: block; }
+.sector-name  { font-weight: 700; font-size: 14px; color: #0f2444; }
+.sector-count { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+.hiw { background: #0f2444; border-radius: 24px; padding: 60px 48px; }
+.hiw-title { color: #fff; }
+.hiw-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 32px; margin-top: 48px; }
+.hiw-step { text-align: center; }
+.hiw-icon { width: 64px; height: 64px; background: rgba(212,168,67,0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 28px; border: 1.5px solid rgba(212,168,67,0.2); }
+.hiw-num { width: 24px; height: 24px; background: #d4a843; border-radius: 50%; margin: -10px auto 14px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: #0f2444; }
+.hiw-step h4 { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.hiw-step p  { color: rgba(255,255,255,0.5); font-size: 13px; line-height: 1.65; }
+
+.country-strip { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.country-pill { display: flex; align-items: center; gap: 7px; padding: 9px 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 100px; font-size: 13.5px; font-weight: 500; color: #334155; transition: all 0.18s; text-decoration: none; }
+.country-pill:hover { border-color: #d4a843; color: #0f2444; transform: translateY(-2px); }
+
+.jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px,1fr)); gap: 20px; }
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">🌍 Worldwide Recruitment &amp; Placement</div>
+      <h1>Your Gateway to a <span>Global Career</span></h1>
+      <p class="hero-desc">
+        Connecting exceptional talent with leading employers across 20+ countries.
+        From healthcare to technology, maritime to construction — your dream job is waiting.
+      </p>
+      <div class="hero-btns">
+        <a href="{{ url_for('jobs') }}" class="btn btn-gold" style="padding:14px 32px; font-size:16px;">
+          🔍 Browse {{ total_active }}+ Jobs
+        </a>
+        <a href="{{ url_for('jobs') }}" class="btn btn-outline" style="padding:14px 32px; font-size:16px; color:#fff; border-color:rgba(255,255,255,0.3);">
+          📋 Post a Job
+        </a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-emoji">🌍</div><span class="stat-value">20+</span><span class="stat-label">Countries</span></div>
+      <div class="stat-item"><div class="stat-emoji">💼</div><span class="stat-value">{{ total_active }}+</span><span class="stat-label">Active Jobs</span></div>
+      <div class="stat-item"><div class="stat-emoji">🏆</div><span class="stat-value">10K+</span><span class="stat-label">Professionals Placed</span></div>
+      <div class="stat-item"><div class="stat-emoji">⚡</div><span class="stat-value">48h</span><span class="stat-label">Avg Response</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH BAR -->
+<div class="search-bar">
+  <form class="search-inner" method="GET" action="{{ url_for('jobs') }}">
+    <div class="search-field">
+      <span class="search-icon">🔍</span>
+      <input class="form-control" type="text" name="search" placeholder="Job title, company or keyword…">
+    </div>
+    <div class="search-select">
+      <select name="sector" class="form-control">
+        <option value="">All Sectors</option>
+        {% for s in SECTORS %}<option>{{ s }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="search-select">
+      <select name="country" class="form-control">
+        <option value="">All Countries</option>
+        {% for c in COUNTRIES %}<option>{{ c }}</option>{% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary" style="padding:11px 26px;">Search Jobs</button>
+  </form>
+</div>
+
+<!-- FEATURED JOBS -->
+<section class="section">
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:36px;">
+      <div>
+        <div class="label-tag">Opportunities</div>
+        <h2 class="section-title" style="margin-bottom:0;">Featured Jobs</h2>
+      </div>
+      <a href="{{ url_for('jobs') }}" class="btn btn-outline btn-sm">View All Jobs →</a>
+    </div>
+
+    {% if featured_jobs %}
+    <div class="jobs-grid">
+      {% for job in featured_jobs %}
+      <div class="job-card">
+        <div class="job-card-top">
+          <div>
+            <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+              {% if job.urgent %}<span class="badge badge-urgent">🔥 Urgent</span>{% endif %}
+              <span class="badge" style="background:#eff6ff; color:#1d4ed8;">{{ job.job_type }}</span>
+            </div>
+            <div class="job-title">{{ job.title }}</div>
+            <div class="job-company">{{ job.company }}</div>
+          </div>
+          <div class="job-flag">{{ COUNTRY_FLAGS.get(job.country, '🌍') }}</div>
+        </div>
+        <div class="job-tags">
+          <span class="tag">📍 {{ job.location }}</span>
+          <span class="tag">🏷 {{ job.sector }}</span>
+          <span class="tag">🎯 {{ job.experience }}</span>
+        </div>
+        <div class="job-salary">{{ job.salary }}</div>
+        <div class="job-card-actions">
+          <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-outline btn-sm">View Details</a>
+          <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary btn-sm">Apply Now</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card text-center" style="padding:60px;">
+      <div style="font-size:48px; margin-bottom:16px;">💼</div>
+      <h3 class="text-navy">No jobs posted yet</h3>
+      <p class="text-muted">Check back soon for new opportunities.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- SECTORS -->
+<section class="section" style="background:#fff; padding:60px 0;">
+  <div class="container">
+    <div class="text-center" style="margin-bottom:44px;">
+      <div class="label-tag">Industries</div>
+      <h2 class="section-title">Browse by Sector</h2>
+    </div>
+    <div class="sector-grid">
+      {% for sector, emoji in SECTOR_EMOJIS.items() %}
+      <a href="{{ url_for('jobs', sector=sector) }}" class="sector-card">
+        <span class="sector-emoji">{{ emoji }}</span>
+        <div class="sector-name">{{ sector }}</div>
+        <div class="sector-count">{{ sector_counts.get(sector, 0) }} jobs</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="container">
+    <div class="hiw">
+      <div class="text-center">
+        <div class="label-tag">Simple Process</div>
+        <h2 class="section-title hiw-title">How It Works</h2>
+      </div>
+      <div class="hiw-grid">
+        {% for icon, title, desc in [
+          ('🔍','Search','Browse thousands of jobs across 20+ countries and multiple industries'),
+          ('📝','Apply','Submit your application in minutes with our streamlined form'),
+          ('📞','Interview','Our team connects you with the employer for interviews'),
+          ('✈️','Placed','Get placed in your dream role with full relocation support')
+        ] %}
+        <div class="hiw-step">
+          <div class="hiw-icon">{{ icon }}</div>
+          <div class="hiw-num">{{ loop.index }}</div>
+          <h4>{{ title }}</h4>
+          <p>{{ desc }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COUNTRIES -->
+<section class="section-sm" style="background:#fff;">
+  <div class="container text-center">
+    <div class="label-tag" style="color:#64748b;">Hiring Destinations</div>
+    <div class="country-strip" style="margin-top:24px;">
+      {% for country in COUNTRIES[:14] %}
+      <a href="{{ url_for('jobs', country=country) }}" class="country-pill">
+        {{ COUNTRY_FLAGS.get(country,'🌍') }} {{ country }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Browse Jobs{% endblock %}
+
+{% block extra_css %}
+.page-header { background: linear-gradient(135deg,#0f2444,#152d57); padding: 40px 0; }
+.page-header h1 { color:#fff; font-size:32px; font-weight:900; letter-spacing:-0.5px; margin-bottom:6px; }
+.page-header p { color:rgba(255,255,255,0.55); }
+.jobs-layout { display:grid; grid-template-columns:270px 1fr; gap:28px; padding:32px 0 60px; }
+.sidebar .card { position:sticky; top:90px; }
+.sidebar-title { font-size:15px; font-weight:700; color:#0f2444; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+.filter-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#64748b; margin-bottom:9px; display:block; }
+.filter-group { margin-bottom:18px; }
+.jobs-list { display:flex; flex-direction:column; gap:16px; }
+.job-row {
+  background:#fff; border:1.5px solid #e2e8f0; border-radius:16px; padding:22px 24px;
+  cursor:pointer; transition:all 0.2s;
+}
+.job-row:hover { border-color:#d4a843; box-shadow:0 8px 30px rgba(0,0,0,0.1); transform:translateX(3px); }
+.job-row-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.job-row-meta { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+.job-row-actions { display:flex; gap:10px; margin-top:14px; }
+.no-results { background:#fff; border-radius:16px; padding:80px 40px; text-align:center; border:1px solid #e2e8f0; }
+.results-count { font-size:14px; color:#64748b; margin-bottom:20px; }
+@media(max-width:768px){
+  .jobs-layout { grid-template-columns:1fr; }
+  .sidebar .card { position:static; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>Browse All Jobs</h1>
+    <p>{{ all_jobs|length }} opportunit{{ 'y' if all_jobs|length == 1 else 'ies' }} available worldwide</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="jobs-layout">
+
+    <!-- SIDEBAR FILTERS -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="sidebar-title">🔧 Filters</div>
+        <form method="GET" action="{{ url_for('jobs') }}">
+          <div class="filter-group">
+            <label class="filter-label">Search</label>
+            <input class="form-control" type="text" name="search" value="{{ search }}" placeholder="Title, company…">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Sector</label>
+            <select class="form-control" name="sector">
+              <option value="">All Sectors</option>
+              {% for s in SECTORS %}
+              <option {{ 'selected' if sector == s }}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Country</label>
+            <select class="form-control" name="country">
+              <option value="">All Countries</option>
+              {% for c in COUNTRIES %}
+              <option {{ 'selected' if country == c }}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Job Type</label>
+            <select class="form-control" name="type">
+              <option value="">All Types</option>
+              {% for t in JOB_TYPES %}
+              <option {{ 'selected' if job_type == t }}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:10px;">
+            🔍 Apply Filters
+          </button>
+          <a href="{{ url_for('jobs') }}" class="btn btn-outline" style="width:100%; justify-content:center;">
+            Clear All
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <!-- JOBS LIST -->
+    <div>
+      {% if search or sector or country or job_type %}
+      <div class="results-count">
+        Showing {{ all_jobs|length }} result{{ 's' if all_jobs|length != 1 }}
+        {% if search %} for "<strong>{{ search }}</strong>"{% endif %}
+        {% if sector %} in <strong>{{ sector }}</strong>{% endif %}
+        {% if country %} · <strong>{{ country }}</strong>{% endif %}
+        {% if job_type %} · <strong>{{ job_type }}</strong>{% endif %}
+      </div>
+      {% endif %}
+
+      {% if all_jobs %}
+      <div class="jobs-list">
+        {% for job in all_jobs %}
+        <div class="job-row">
+          <div class="job-row-top">
+            <div>
+              <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+                {% if job.urgent %}<span class="badge badge-urgent">🔥 Urgent</span>{% endif %}
+                <span class="badge" style="background:#f0fdf4; color:#15803d;">{{ job.job_type }}</span>
+              </div>
+              <h3 style="font-size:18px; font-weight:800; color:#0f2444; margin-bottom:5px;">{{ job.title }}</h3>
+              <div style="font-size:14px; font-weight:600; color:#334155;">{{ job.company }}</div>
+            </div>
+            <div style="font-size:28px; flex-shrink:0;">{{ COUNTRY_FLAGS.get(job.country,'🌍') }}</div>
+          </div>
+
+          <div class="job-row-meta">
+            <span class="tag">📍 {{ job.location }}</span>
+            <span class="tag">🏷 {{ job.sector }}</span>
+            <span class="tag">🎯 {{ job.experience }}</span>
+            <span class="tag tag-green">💰 {{ job.salary }}</span>
+          </div>
+
+          {% if job.description %}
+          <p style="font-size:13px; color:#64748b; line-height:1.65; margin:0;">
+            {{ job.description[:160] }}{% if job.description|length > 160 %}…{% endif %}
+          </p>
+          {% endif %}
+
+          <div class="job-row-actions">
+            <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-outline btn-sm">👁 View Details</a>
+            <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary btn-sm">Apply Now →</a>
+            {% if job.deadline %}
+            <span style="font-size:12px; color:#94a3b8; align-self:center; margin-left:auto;">
+              ⏰ Deadline: {{ job.deadline }} · {{ job.slots }} slot{{ 's' if job.slots != 1 }}
+            </span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="no-results">
+        <div style="font-size:52px; margin-bottom:18px;">🔍</div>
+        <h3 style="color:#0f2444; margin-bottom:8px;">No jobs found</h3>
+        <p class="text-muted" style="margin-bottom:24px;">Try adjusting your filters or search terms.</p>
+        <a href="{{ url_for('jobs') }}" class="btn btn-primary">Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

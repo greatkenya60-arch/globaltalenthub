@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}GlobalTalentHub{% endblock %} — Worldwide Recruitment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0f2444;
+  --navy2:   #152d57;
+  --gold:    #d4a843;
+  --gold2:   #f0c96a;
+  --slate:   #334155;
+  --muted:   #64748b;
+  --border:  #e2e8f0;
+  --light:   #f8f7f4;
+  --white:   #ffffff;
+  --green:   #059669;
+  --red:     #dc2626;
+  --blue:    #2563eb;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  color: var(--slate);
+  background: var(--light);
+  line-height: 1.65;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; }
+button, input, select, textarea {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  background: var(--navy);
+  height: 68px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+}
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  background: var(--gold);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.brand-text { line-height: 1.2; }
+.brand-name  { font-weight: 900; font-size: 17px; color: #fff; letter-spacing: -0.3px; }
+.brand-sub   { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.8px; }
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-link {
+  color: rgba(255,255,255,0.7);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
+}
+.nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.12); color: #fff; }
+.nav-btn {
+  background: var(--gold);
+  color: var(--navy) !important;
+  font-weight: 700 !important;
+  padding: 9px 20px !important;
+  border-radius: 10px !important;
+  margin-left: 8px;
+  transition: background 0.18s, transform 0.15s !important;
+}
+.nav-btn:hover { background: var(--gold2) !important; transform: translateY(-1px); }
+
+/* ── MAIN ── */
+main { flex: 1; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.55);
+  padding: 52px 24px 28px;
+  margin-top: auto;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 44px;
+  margin-bottom: 36px;
+}
+.footer-brand { margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.footer-brand .brand-icon { width: 36px; height: 36px; font-size: 17px; }
+.footer-brand .brand-name { font-size: 15px; }
+.footer-about-text { font-size: 13px; line-height: 1.75; max-width: 280px; }
+.footer-col h5 {
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.footer-col a {
+  display: block;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 9px;
+  transition: color 0.15s;
+}
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 22px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  align-items: center;
+}
+.footer-admin-link { color: rgba(255,255,255,0.1); font-size: 10px; }
+.footer-admin-link:hover { color: rgba(255,255,255,0.3); }
+
+/* ── FLASH MESSAGES ── */
+.flash-container {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.flash {
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 14px;
+  max-width: 340px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  animation: slideUp 0.35s ease;
+}
+.flash.success { background: #d1fae5; color: #065f46; }
+.flash.error   { background: #fee2e2; color: #991b1b; }
+.flash.info    { background: #dbeafe; color: #1e40af; }
+
+/* ── UTILITIES ── */
+.container   { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.section     { padding: 72px 0; }
+.section-sm  { padding: 48px 0; }
+.text-center { text-align: center; }
+.text-muted  { color: var(--muted); }
+.text-navy   { color: var(--navy); }
+.text-gold   { color: var(--gold); }
+
+.label-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 900;
+  color: var(--navy);
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin-bottom: 12px;
+}
+.section-desc {
+  color: var(--muted);
+  font-size: 16px;
+  max-width: 580px;
+  line-height: 1.7;
+  margin-bottom: 44px;
+}
+
+/* ── CARD ── */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  padding: 24px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-primary   { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy2); box-shadow: 0 4px 20px rgba(15,36,68,0.35); }
+.btn-gold      { background: var(--gold); color: var(--navy); font-weight: 700; }
+.btn-gold:hover{ background: var(--gold2); box-shadow: 0 4px 20px rgba(212,168,67,0.4); }
+.btn-outline   { background: transparent; border: 1.5px solid var(--border); color: var(--slate); }
+.btn-outline:hover { border-color: var(--navy); color: var(--navy); }
+.btn-sm        { padding: 8px 16px; font-size: 13px; border-radius: 8px; }
+.btn-danger    { background: #fee2e2; color: var(--red); }
+.btn-danger:hover{ background: var(--red); color: #fff; }
+.btn-success   { background: #d1fae5; color: #065f46; }
+.btn-success:hover { background: #059669; color: #fff; }
+.btn-info      { background: #dbeafe; color: #1d4ed8; }
+.btn-info:hover{ background: #2563eb; color: #fff; }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+.badge-urgent  { background: #fef3c7; color: #d97706; }
+.badge-active  { background: #d1fae5; color: #065f46; }
+.badge-inactive{ background: #fee2e2; color: #dc2626; }
+.badge-new     { background: #dbeafe; color: #1d4ed8; }
+
+/* ── FORM ── */
+.form-group   { margin-bottom: 18px; }
+.form-label   { display: block; font-weight: 600; font-size: 13px; color: var(--slate); margin-bottom: 7px; }
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  font-size: 14px;
+  font-family: 'Outfit', sans-serif;
+  outline: none;
+  background: #fff;
+  color: var(--slate);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.form-control:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(15,36,68,0.08); }
+.form-control.is-error { border-color: var(--red); }
+.form-error   { font-size: 12px; color: var(--red); margin-top: 5px; }
+select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.6; }
+.form-hint    { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+/* ── JOB TAG ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: #475569;
+}
+.tag-green { background: #f0fdf4; color: #15803d; font-weight: 700; }
+
+/* ── ANIMATIONS ── */
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  .navbar-inner { padding: 0 16px; }
+  .brand-sub { display: none; }
+}
+
+{% block extra_css %}{% endblock %}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="{{ url_for('index') }}" class="navbar-brand">
+      <div class="brand-icon">🌍</div>
+      <div class="brand-text">
+        <div class="brand-name">GlobalTalentHub</div>
+        <div class="brand-sub">Worldwide Recruitment</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+      <a href="{{ url_for('jobs') }}" class="nav-link {% if request.endpoint in ['jobs','job_detail'] %}active{% endif %}">Browse Jobs</a>
+      <a href="{{ url_for('jobs') }}" class="nav-link nav-btn">Apply Now</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="brand-icon">🌍</div>
+          <div class="brand-text">
+            <div class="brand-name" style="color:#fff;">GlobalTalentHub</div>
+          </div>
+        </div>
+        <p class="footer-about-text">Connecting exceptional professionals with leading employers worldwide. Your international career starts here.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Sectors</h5>
+        <a href="{{ url_for('jobs', sector='Medical') }}">Medical</a>
+        <a href="{{ url_for('jobs', sector='Technology') }}">Technology</a>
+        <a href="{{ url_for('jobs', sector='Maritime') }}">Maritime</a>
+        <a href="{{ url_for('jobs', sector='Engineering') }}">Engineering</a>
+        <a href="{{ url_for('jobs', sector='Finance') }}">Finance</a>
+        <a href="{{ url_for('jobs', sector='Education') }}">Education</a>
+      </div>
+      <div class="footer-col">
+        <h5>Countries</h5>
+        <a href="{{ url_for('jobs', country='Australia') }}">Australia 🇦🇺</a>
+        <a href="{{ url_for('jobs', country='United Kingdom') }}">United Kingdom 🇬🇧</a>
+        <a href="{{ url_for('jobs', country='Canada') }}">Canada 🇨🇦</a>
+        <a href="{{ url_for('jobs', country='United Arab Emirates') }}">UAE 🇦🇪</a>
+        <a href="{{ url_for('jobs', country='Germany') }}">Germany 🇩🇪</a>
+        <a href="{{ url_for('jobs', country='Singapore') }}">Singapore 🇸🇬</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="{{ url_for('jobs') }}">Browse All Jobs</a>
+        <a href="{{ url_for('jobs') }}">Apply Now</a>
+        <a href="#">Career Guide</a>
+        <a href="#">FAQs</a>
+        <a href="#">Contact Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 GlobalTalentHub. All rights reserved.</span>
+      <a href="{{ url_for('admin_login') }}" class="footer-admin-link">·</a>
+    </div>
+  </div>
+</footer>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container" id="flashContainer">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message|safe }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        const el = document.getElementById('flashContainer');
+        if (el) el.style.opacity = '0', el.style.transition = 'opacity 0.5s', setTimeout(() => el.remove(), 500);
+      }, 4000);
+    </script>
+  {% endif %}
+{% endwith %}
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

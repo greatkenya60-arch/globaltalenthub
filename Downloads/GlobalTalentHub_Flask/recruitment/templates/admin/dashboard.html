@@ -1,0 +1,136 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:28px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:13px;}
+.bar-label{font-size:13px;font-weight:500;color:var(--slate);width:110px;flex-shrink:0;}
+.bar-track{flex:1;height:8px;background:#f1f5f9;border-radius:100px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--navy);border-radius:100px;}
+.bar-count{font-size:13px;font-weight:700;color:var(--navy);width:24px;text-align:right;}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)}.dash-grid{grid-template-columns:1fr}}
+{% endblock %}
+
+{% block page_content %}
+
+<!-- STATS -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#e0edf7;">💼</div>
+    <div>
+      <div class="stat-val" style="color:#0f2444;">{{ active_jobs }}</div>
+      <div class="stat-lbl">Active Jobs</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#f3f0ff;">📋</div>
+    <div>
+      <div class="stat-val" style="color:#7c3aed;">{{ total_jobs }}</div>
+      <div class="stat-lbl">Total Listings</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#fef3c7;">👥</div>
+    <div>
+      <div class="stat-val" style="color:#d97706;">{{ total_apps }}</div>
+      <div class="stat-lbl">Total Applications</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#fee2e2;">🔔</div>
+    <div>
+      <div class="stat-val" style="color:#dc2626;">{{ new_apps }}</div>
+      <div class="stat-lbl">New (Unreviewed)</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#d1fae5;">✅</div>
+    <div>
+      <div class="stat-val" style="color:#059669;">{{ hired }}</div>
+      <div class="stat-lbl">Hired</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM GRID -->
+<div class="dash-grid">
+
+  <!-- Recent Applications -->
+  <div class="card">
+    <div class="section-header">
+      <h2>Recent Applications</h2>
+      <a href="{{ url_for('admin_applications') }}" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+
+    {% if recent_apps %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Position</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in recent_apps %}
+          <tr>
+            <td>
+              <div style="font-weight:600;color:var(--navy);">{{ app.full_name }}</div>
+              <div style="font-size:12px;color:var(--muted);">{{ app.email }}</div>
+            </td>
+            <td style="font-size:13px;">{{ app.job_title or '—' }}</td>
+            <td><span class="badge b-{{ app.status }}">{{ app.status }}</span></td>
+            <td style="font-size:12px;color:var(--muted);">{{ app.applied_at[:10] if app.applied_at else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:40px;">
+      <div class="icon">📭</div>
+      <p>No applications yet.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Jobs by Sector -->
+  <div class="card">
+    <div class="section-header">
+      <h2>Jobs by Sector</h2>
+    </div>
+    {% set total = sector_stats|sum(attribute='cnt') or 1 %}
+    {% for row in sector_stats %}
+    <div class="bar-row">
+      <div class="bar-label">{{ row.sector }}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:{{ ((row.cnt / total) * 100)|int }}%;"></div>
+      </div>
+      <div class="bar-count">{{ row.cnt }}</div>
+    </div>
+    {% endfor %}
+    {% if not sector_stats %}
+    <div class="empty-state" style="padding:30px;">
+      <p>No jobs yet.</p>
+    </div>
+    {% endif %}
+
+    {% if country_stats %}
+    <hr class="divider">
+    <h2 style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;">Applications by Country</h2>
+    {% for row in country_stats %}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:13px;color:var(--slate);">{{ row.country }}</span>
+      <span style="font-size:13px;font-weight:700;color:var(--navy);">{{ row.cnt }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}

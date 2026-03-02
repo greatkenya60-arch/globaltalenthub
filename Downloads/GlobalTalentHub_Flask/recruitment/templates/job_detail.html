@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }}{% endblock %}
+
+{% block extra_css %}
+.job-header { background: linear-gradient(135deg,#0f2444,#152d57); padding: 44px 0; }
+.job-header-inner { max-width:1100px; margin:0 auto; padding:0 24px; }
+.back-link { color:rgba(255,255,255,0.5); font-size:13px; display:inline-flex; align-items:center; gap:6px; margin-bottom:20px; transition:color 0.15s; }
+.back-link:hover { color:#fff; }
+.job-header-grid { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; }
+.job-header-info h1 { color:#fff; font-size:30px; font-weight:900; margin-bottom:8px; letter-spacing:-0.5px; }
+.job-company-line { color:rgba(255,255,255,0.7); font-size:16px; font-weight:600; margin-bottom:14px; }
+.job-header-tags { display:flex; gap:10px; flex-wrap:wrap; }
+.job-header-tag { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); padding:6px 14px; border-radius:8px; font-size:13px; font-weight:500; }
+.job-salary-card { background:rgba(255,255,255,0.1); border-radius:16px; padding:22px 28px; text-align:center; backdrop-filter:blur(8px); flex-shrink:0; }
+.job-salary-value { font-size:22px; font-weight:900; color:#d4a843; margin-bottom:6px; }
+.job-salary-exp { color:rgba(255,255,255,0.55); font-size:13px; margin-bottom:14px; }
+.job-layout { display:grid; grid-template-columns:1fr 300px; gap:28px; padding:36px 0 60px; max-width:1100px; margin:0 auto; }
+.check-list { list-style:none; }
+.check-list li { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+.check-icon { width:22px; height:22px; background:#d1fae5; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; margin-top:1px; }
+.check-list li span { font-size:14px; color:#334155; line-height:1.6; }
+.benefit-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.benefit-item { display:flex; gap:10px; align-items:center; background:#f0fdf4; padding:11px 14px; border-radius:10px; font-size:13px; color:#334155; }
+.summary-row { display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid #f1f5f9; font-size:13px; }
+.summary-row:last-child { border-bottom:none; }
+.summary-key { color:#64748b; font-weight:500; }
+.summary-val { color:#334155; font-weight:600; text-align:right; max-width:60%; }
+@media(max-width:768px){
+  .job-layout { grid-template-columns:1fr; }
+  .benefit-grid { grid-template-columns:1fr; }
+}
+{% endblock %}
+
+{% block content %}
+
+<!-- JOB HEADER -->
+<div class="job-header">
+  <div class="job-header-inner">
+    <a href="{{ url_for('jobs') }}" class="back-link">← Back to Jobs</a>
+    <div class="job-header-grid">
+      <div class="job-header-info">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <h1>{{ job.title }}</h1>
+          {% if job.urgent %}<span class="badge badge-urgent" style="flex-shrink:0;">🔥 Urgent</span>{% endif %}
+        </div>
+        <div class="job-company-line">{{ job.company }}</div>
+        <div class="job-header-tags">
+          <span class="job-header-tag">{{ COUNTRY_FLAGS.get(job.country,'🌍') }} {{ job.location }}</span>
+          <span class="job-header-tag">🏷 {{ job.sector }}</span>
+          <span class="job-header-tag">💼 {{ job.job_type }}</span>
+          {% if job.experience %}<span class="job-header-tag">🎯 {{ job.experience }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="job-salary-card">
+        <div class="job-salary-value">{{ job.salary or 'Competitive' }}</div>
+        <div class="job-salary-exp">{{ job.experience }}</div>
+        <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px;">
+          Apply Now →
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="container">
+  <div class="job-layout">
+
+    <!-- LEFT: Details -->
+    <div>
+      {% if job.description %}
+      <div class="card" style="margin-bottom:20px;">
+        <h3 style="font-size:17px; font-weight:700; color:#0f2444; margin-bottom:16px;">📄 About the Role</h3>
+        <p style="color:#334155; line-height:1.8; font-size:15px;">{{ job.description }}</p>
+      </div>
+      {% endif %}
+
+      {% if job.requirements_list %}
+      <div class="card" style="margin-bottom:20px;">
+        <h3 style="font-size:17px; font-weight:700; color:#0f2444; margin-bottom:18px;">✅ Requirements</h3>
+        <ul class="check-list">
+          {% for req in job.requirements_list %}
+          <li>
+            <div class="check-icon">✓</div>
+            <span>{{ req }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if job.benefits_list %}
+      <div class="card" style="margin-bottom:24px;">
+        <h3 style="font-size:17px; font-weight:700; color:#0f2444; margin-bottom:18px;">🎁 Benefits &amp; Perks</h3>
+        <div class="benefit-grid">
+          {% for b in job.benefits_list %}
+          <div class="benefit-item">
+            <span style="color:#059669; font-size:15px;">✦</span>
+            {{ b }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary" style="padding:14px 32px; font-size:15px;">
+        🚀 Apply for This Position
+      </a>
+    </div>
+
+    <!-- RIGHT: Summary -->
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <h4 style="font-size:15px; font-weight:700; color:#0f2444; margin-bottom:18px;">📋 Job Summary</h4>
+        {% for key, val in [
+          ('Location', job.location),
+          ('Country', job.country),
+          ('Sector', job.sector),
+          ('Type', job.job_type),
+          ('Experience', job.experience or '—'),
+          ('Salary', job.salary or 'Competitive'),
+          ('Positions', job.slots|string + (' position' if job.slots == 1 else ' positions')),
+          ('Deadline', job.deadline or 'Open'),
+          ('Posted', job.posted_at or '—'),
+        ] %}
+        <div class="summary-row">
+          <span class="summary-key">{{ key }}</span>
+          <span class="summary-val">{{ val }}</span>
+        </div>
+        {% endfor %}
+        {% if app_count > 0 %}
+        <div class="summary-row">
+          <span class="summary-key">Applicants</span>
+          <span class="summary-val" style="color:#d97706;">{{ app_count }} applied</span>
+        </div>
+        {% endif %}
+      </div>
+      <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary" style="width:100%; justify-content:center; padding:14px; font-size:15px;">
+        Apply Now →
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

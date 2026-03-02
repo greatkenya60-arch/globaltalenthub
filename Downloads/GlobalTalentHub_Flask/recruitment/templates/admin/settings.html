@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block page_content %}
+<div style="max-width:680px; display:flex; flex-direction:column; gap:22px;">
+
+  <!-- TELEGRAM BOT -->
+  <div class="card">
+    <h3 style="font-size:17px; font-weight:800; color:var(--navy); margin-bottom:6px;">🤖 Telegram Bot Notifications</h3>
+    <p style="color:var(--muted); font-size:14px; margin-bottom:22px; line-height:1.65;">
+      Receive instant Telegram notifications whenever a candidate submits a job application.
+    </p>
+
+    <!-- Setup Instructions -->
+    <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:12px; padding:16px 20px; margin-bottom:24px; font-size:13px; color:#0369a1; line-height:1.75;">
+      <strong style="font-size:14px;">📖 Setup Instructions</strong><br>
+      1. Open Telegram and search for <code style="background:#dbeafe;padding:2px 6px;border-radius:4px;">@BotFather</code><br>
+      2. Send <code style="background:#dbeafe;padding:2px 6px;border-radius:4px;">/newbot</code> and follow the prompts to create your bot<br>
+      3. Copy the API token BotFather gives you and paste it below<br>
+      4. Start a chat with your new bot (send it any message)<br>
+      5. Get your Chat ID from <code style="background:#dbeafe;padding:2px 6px;border-radius:4px;">@userinfobot</code><br>
+      6. Click "Test Connection" to verify — then "Save Settings"
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_settings') }}">
+      <input type="hidden" name="action" value="save_telegram">
+      <div class="form-group">
+        <label class="form-label">Bot Token</label>
+        <input class="form-control" type="text" name="bot_token"
+               value="{{ settings.bot_token }}" placeholder="123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw">
+        <div class="form-hint">From @BotFather — looks like: 123456789:AAHdqT…</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Chat ID</label>
+        <input class="form-control" type="text" name="chat_id"
+               value="{{ settings.chat_id }}" placeholder="e.g. 123456789 or -100123456789">
+        <div class="form-hint">Your personal Telegram user ID or a group/channel ID</div>
+      </div>
+      <div class="form-group">
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; font-weight:500;">
+          <input type="checkbox" name="notifications_enabled"
+                 {{ 'checked' if settings.notifications_enabled == '1' }}
+                 style="width:17px;height:17px;cursor:pointer;accent-color:var(--navy);">
+          Enable Telegram notifications for new applications
+        </label>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button type="submit" class="btn btn-primary">💾 Save Settings</button>
+      </div>
+    </form>
+
+    <!-- Test Button (separate form, passes current values) -->
+    <form method="POST" action="{{ url_for('admin_settings') }}" style="margin-top:12px;" id="testForm">
+      <input type="hidden" name="action" value="test_telegram">
+      <input type="hidden" name="bot_token" id="testToken" value="{{ settings.bot_token }}">
+      <input type="hidden" name="chat_id" id="testChatId" value="{{ settings.chat_id }}">
+      <button type="submit" class="btn btn-info"
+              onclick="document.getElementById('testToken').value=document.querySelector('input[name=bot_token]').value;
+                       document.getElementById('testChatId').value=document.querySelector('input[name=chat_id]').value;">
+        📲 Test Connection
+      </button>
+    </form>
+
+    <!-- Status indicator -->
+    {% if settings.bot_token and settings.chat_id %}
+    <div style="margin-top:16px; display:flex; align-items:center; gap:8px; font-size:13px; color:#059669; font-weight:600;">
+      <span style="width:9px;height:9px;background:#059669;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>
+      Telegram bot is configured
+    </div>
+    {% else %}
+    <div style="margin-top:16px; display:flex; align-items:center; gap:8px; font-size:13px; color:#94a3b8; font-weight:600;">
+      <span style="width:9px;height:9px;background:#cbd5e1;border-radius:50%;display:inline-block;"></span>
+      Not configured yet
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- SECURITY -->
+  <div class="card">
+    <h3 style="font-size:17px; font-weight:800; color:var(--navy); margin-bottom:6px;">🔒 Admin Security</h3>
+    <p style="color:var(--muted); font-size:14px; margin-bottom:22px;">
+      Change your admin panel password. Use a strong password of at least 8 characters.
+    </p>
+    <form method="POST" action="{{ url_for('admin_settings') }}">
+      <input type="hidden" name="action" value="change_password">
+      <div class="form-group" style="max-width:360px;">
+        <label class="form-label">New Password</label>
+        <input class="form-control" type="password" name="new_password" placeholder="Enter new password" minlength="6">
+      </div>
+      <div class="form-group" style="max-width:360px;">
+        <label class="form-label">Confirm Password</label>
+        <input class="form-control" type="password" name="confirm_password" placeholder="Repeat new password" minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary">🔒 Update Password</button>
+    </form>
+  </div>
+
+  <!-- STATS SUMMARY -->
+  <div class="card" style="background:linear-gradient(135deg,#0f2444,#152d57); border:none;">
+    <h3 style="font-size:15px; font-weight:700; color:#fff; margin-bottom:16px;">📊 Platform Summary</h3>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+      {% for emoji, label, q in [
+        ('💼','Active Jobs',"SELECT COUNT(*) as c FROM jobs WHERE active=1"),
+        ('👥','Total Applications',"SELECT COUNT(*) as c FROM applications"),
+        ('✅','Hired',"SELECT COUNT(*) as c FROM applications WHERE status='hired'")
+      ] %}
+      <div style="text-align:center;">
+        <div style="font-size:26px;">{{ emoji }}</div>
+        <div style="font-size:28px; font-weight:900; color:#d4a843; margin:6px 0 2px;">
+          <!-- values passed from route -->
+        </div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.45);">{{ label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<style>
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.4)}}
+</style>
+{% endblock %}

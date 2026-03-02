@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Apply — {{ job.title }}{% endblock %}
+
+{% block extra_css %}
+.apply-header { background: linear-gradient(135deg,#0f2444,#152d57); padding: 36px 0; }
+.apply-header h1 { color:#fff; font-size:26px; font-weight:900; margin-bottom:6px; letter-spacing:-0.4px; }
+.apply-header p { color:rgba(255,255,255,0.6); font-size:15px; }
+.back-link { color:rgba(255,255,255,0.5); font-size:13px; display:inline-flex; align-items:center; gap:6px; margin-bottom:16px; transition:color 0.15s; }
+.back-link:hover { color:#fff; }
+.apply-layout { max-width:820px; margin:0 auto; padding:36px 24px 60px; }
+.form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.section-divider { border:none; border-top:2px solid #f1f5f9; margin:28px 0; }
+.form-section-title { font-size:16px; font-weight:800; color:#0f2444; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+.required-star { color:#dc2626; }
+.job-summary-box { background:#f8fafc; border-radius:14px; padding:18px 20px; margin-bottom:28px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.job-summary-box .title { font-weight:800; font-size:16px; color:#0f2444; }
+.job-summary-box .meta { font-size:13px; color:#64748b; margin-top:3px; }
+.submit-section { background:#f8fafc; border-radius:16px; padding:24px; margin-top:28px; }
+.submit-preview { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.preview-item .pk { font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; font-weight:600; }
+.preview-item .pv { font-size:13px; color:#334155; font-weight:600; margin-top:2px; }
+@media(max-width:640px){
+  .form-grid-2 { grid-template-columns:1fr; }
+  .submit-preview { grid-template-columns:1fr; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="apply-header">
+  <div class="container">
+    <a href="{{ url_for('job_detail', job_id=job.id) }}" class="back-link">← Back to Job Details</a>
+    <h1>Apply: {{ job.title }}</h1>
+    <p>{{ job.company }} · {{ job.location }} · {{ job.country }}</p>
+  </div>
+</div>
+
+<div class="apply-layout">
+  <!-- Job Info Box -->
+  <div class="job-summary-box">
+    <div>
+      <div class="title">{{ job.title }}</div>
+      <div class="meta">{{ job.company }} · {{ COUNTRY_FLAGS.get(job.country,'🌍') }} {{ job.location }} · {{ job.sector }}</div>
+    </div>
+    <div>
+      {% if job.urgent %}<span class="badge badge-urgent">🔥 Urgent Hire</span>{% endif %}
+      <span style="font-size:16px; font-weight:800; color:#059669; margin-left:10px;">{{ job.salary }}</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <form method="POST" action="{{ url_for('apply', job_id=job.id) }}">
+
+      <!-- SECTION 1: Personal Info -->
+      <div class="form-section-title">👤 Personal Information</div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Full Name <span class="required-star">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('full_name') }}"
+                 type="text" name="full_name" value="{{ form_data.get('full_name','') }}"
+                 placeholder="Your full legal name">
+          {% if errors.get('full_name') %}<div class="form-error">{{ errors.full_name }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="required-star">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('email') }}"
+                 type="email" name="email" value="{{ form_data.get('email','') }}"
+                 placeholder="your@email.com">
+          {% if errors.get('email') %}<div class="form-error">{{ errors.email }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number <span class="required-star">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('phone') }}"
+                 type="tel" name="phone" value="{{ form_data.get('phone','') }}"
+                 placeholder="+254 700 000 000">
+          {% if errors.get('phone') %}<div class="form-error">{{ errors.phone }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input class="form-control" type="date" name="dob" value="{{ form_data.get('dob','') }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nationality <span class="required-star">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('nationality') }}"
+                 type="text" name="nationality" value="{{ form_data.get('nationality','') }}"
+                 placeholder="e.g. Kenyan, Nigerian, Indian">
+          {% if errors.get('nationality') %}<div class="form-error">{{ errors.nationality }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Current Location <span class="required-star">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('current_location') }}"
+                 type="text" name="current_location" value="{{ form_data.get('current_location','') }}"
+                 placeholder="City, Country">
+          {% if errors.get('current_location') %}<div class="form-error">{{ errors.current_location }}</div>{% endif %}
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- SECTION 2: Professional -->
+      <div class="form-section-title">💼 Professional Details</div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Highest Education <span class="required-star">*</span></label>
+          <input class="form-control {{ 'is-error' if errors.get('education') }}"
+                 type="text" name="education" value="{{ form_data.get('education','') }}"
+                 placeholder="e.g. Bachelor of Nursing, BSc Computer Science">
+          {% if errors.get('education') %}<div class="form-error">{{ errors.education }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">LinkedIn Profile</label>
+          <input class="form-control" type="url" name="linkedin" value="{{ form_data.get('linkedin','') }}"
+                 placeholder="https://linkedin.com/in/yourname">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Portfolio / Website</label>
+          <input class="form-control" type="url" name="portfolio" value="{{ form_data.get('portfolio','') }}"
+                 placeholder="https://yourwebsite.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Work Experience Summary <span class="required-star">*</span></label>
+        <textarea class="form-control {{ 'is-error' if errors.get('experience') }}"
+                  name="experience" rows="5"
+                  placeholder="Briefly describe your work experience, previous roles, key achievements and relevant skills…">{{ form_data.get('experience','') }}</textarea>
+        {% if errors.get('experience') %}<div class="form-error">{{ errors.experience }}</div>{% endif %}
+        <div class="form-hint">Minimum 50 characters. Be specific about your relevant experience.</div>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- SECTION 3: Cover Letter -->
+      <div class="form-section-title">✉️ Cover Letter</div>
+      <div class="form-group">
+        <label class="form-label">Cover Letter</label>
+        <textarea class="form-control" name="cover_letter" rows="8"
+                  placeholder="Dear Hiring Manager,
+
+I am writing to express my strong interest in the {{ job.title }} position at {{ job.company }}. With my background in {{ job.sector }}, I believe I can make a significant contribution to your team…">{{ form_data.get('cover_letter','') }}</textarea>
+        <div class="form-hint">Optional but highly recommended. Personalise this for the role.</div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-section">
+        <h4 style="font-size:14px; font-weight:700; color:#0f2444; margin-bottom:14px;">📋 Review Before Submitting</h4>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">
+          By submitting this application you confirm that all information provided is accurate.
+          You will be contacted at the email address provided if shortlisted.
+        </p>
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary" style="padding:14px 32px; font-size:15px;">
+            🚀 Submit Application
+          </button>
+          <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-outline" style="padding:14px 24px;">
+            Cancel
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
